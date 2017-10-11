@@ -1,0 +1,42 @@
+require "./spec_helper"
+
+private def it_lexes_type(expected_type, bytes, file = __FILE__, line = __LINE__)
+  slice = Bytes.new(bytes.to_unsafe, bytes.size)
+
+  it "lexes #{expected_type} from IO", file, line do
+    lexer = Lexer.new(slice)
+    token = lexer.next_token
+    token.type.should eq(expected_type)
+  end
+end
+
+private def it_lexes_type_with_value(expected_type, value, bytes, file = __FILE__, line = __LINE__)
+  slice = Bytes.new(bytes.to_unsafe, bytes.size)
+
+  it "lexes #{expected_type} from IO", file, line do
+    lexer = Lexer.new(slice)
+    token = lexer.next_token
+    token.type.should eq(expected_type)
+    case expected_type
+    when Type::SmallInt
+      token.uint_value.should eq(value)
+    when Type::Integer
+      token.int_value.should eq(value)
+    when Type::Atom
+      token.string_value.should eq(value)
+    when Type::Bin
+      token.binary_value.should eq(value)
+    end
+  end
+end
+
+describe Lexer do
+  it_lexes_type(Type::EOF, UInt8[])
+  it_lexes_type(Type::Magic, UInt8[131])
+  it_lexes_type(Type::Nil, UInt8[106])
+
+  it_lexes_type_with_value(Type::SmallInt, UInt8::MAX, UInt8[97, 255])
+  it_lexes_type_with_value(Type::Integer, Int32::MAX, UInt8[98, 127, 255, 255, 255])
+  it_lexes_type_with_value(Type::Atom, "abc", UInt8[100, 0, 3, 97, 98, 99])
+  it_lexes_type_with_value(Type::Bin, Bytes[1, 2, 3], UInt8[109, 0, 0, 0, 3, 1, 2, 3])
+end

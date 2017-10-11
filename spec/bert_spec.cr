@@ -1,9 +1,11 @@
+require "yaml"
 require "./spec_helper"
 
 describe BERT do
-  # TODO: Write tests
-
-  it "works" do
-    false.should eq(true)
+  describe "VERSION" do
+    it "matches shards.yml" do
+      version = YAML.parse(File.read(File.join(__DIR__, "..", "shard.yml")))["version"].as_s
+      version.should eq(VERSION)
+    end
   end
 end
