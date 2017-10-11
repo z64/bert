@@ -13,7 +13,7 @@ module BERT
     property used
 
     def initialize
-      @type = Type::None
+      @type = Type::EOF
       @byte_number = 0
       @binary_value = Bytes.new(0)
       @string_value = ""

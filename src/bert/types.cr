@@ -1,7 +1,6 @@
 module BERT
   # Identities of BERT tags
   enum Type
-    None
     EOF
     SmallInt   =  97
     Integer    =  98
