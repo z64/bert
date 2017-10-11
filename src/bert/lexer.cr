@@ -57,30 +57,20 @@ module BERT
         token.size = read UInt32
       when Type::Float
         size = token.size = FLOAT_SIZE
-        # TODO: Abstract this into a method with Atom
-        string_value = String.new(size) do |buffer|
-          @io.read_fully(Slice.new(buffer, size))
-          {size, 0}
-        end
+        string_value = consume_string(size)
+
         if value = string_value.rstrip('\0').to_f?
           token.float_value = value
         else
           # TODO: Exception
           raise "Invalid Float"
         end
-        @byte_number += size
       when Type::Atom
         size = token.size = read UInt16
-        token.string_value = String.new(size) do |buffer|
-          @io.read_fully(Slice.new(buffer, size))
-          {size, 0}
-        end
-        @byte_number += size
+        token.string_value = consume_string(size)
       when Type::Bin
         size = token.size = read UInt32
-        bytes = Bytes.new(size)
-        @io.read_fully(bytes)
-        @byte_number += size
+        bytes = consume_binary(size)
         token.binary_value = bytes
         token.string_value = String.new(bytes)
       else
@@ -109,6 +99,23 @@ module BERT
       # After reading this type, we'll be `sizeof(T)` bytes further along the IO
       @byte_number += sizeof(T)
       @io.read_bytes(T, IO::ByteFormat::BigEndian)
+    end
+
+    # Builds a string from binary values in the IO
+    private def consume_string(size)
+      String.new(size) do |buffer|
+        @io.read_fully(Slice.new(buffer, size))
+        @byte_number += size
+        {size, 0}
+      end
+    end
+
+    # Read a binary value from the IO
+    private def consume_binary(size)
+      bytes = Bytes.new(size)
+      @io.read_fully(bytes)
+      @byte_number += size
+      bytes
     end
 
     # Raises an expcetion when an unknown token type is read
