@@ -4,6 +4,9 @@ module BERT
     # The current token the lexer is set on
     getter token = Token.new
 
+    # Fixed float term length
+    FLOAT_SIZE = 31
+
     # The current byte being read
     getter current_byte = 0_i8
 
@@ -52,6 +55,20 @@ module BERT
         token.size = read UInt16
       when Type::List, Type::Map
         token.size = read UInt32
+      when Type::Float
+        size = token.size = FLOAT_SIZE
+        # TODO: Abstract this into a method with Atom
+        string_value = String.new(size) do |buffer|
+          @io.read_fully(Slice.new(buffer, size))
+          {size, 0}
+        end
+        if value = string_value.rstrip('\0').to_f?
+          token.float_value = value
+        else
+          # TODO: Exception
+          raise "Invalid Float"
+        end
+        @byte_number += size
       when Type::Atom
         size = token.size = read UInt16
         token.string_value = String.new(size) do |buffer|
