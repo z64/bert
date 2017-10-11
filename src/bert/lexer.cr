@@ -47,10 +47,12 @@ module BERT
       case type
       when Type::Magic, Type::Nil
         # OK
-      when Type::SmallInt, Type::SmallTuple
+      when Type::SmallInt
         token.uint_value = read UInt8
       when Type::Integer
         token.int_value = read Int32
+      when Type::SmallTuple
+        token.size = read UInt8
       when Type::LargeTuple
         token.size = read UInt16
       when Type::List, Type::Map

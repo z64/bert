@@ -28,6 +28,8 @@ private def it_lexes_type_with_value(expected_type, value, bytes, file = __FILE_
       token.binary_value.should eq(value)
     when Type::Float
       token.float_value.should eq(value)
+    when Type::SmallTuple
+      token.size.should eq(value)
     end
   end
 end
@@ -42,4 +44,6 @@ describe Lexer do
   it_lexes_type_with_value(Type::Atom, "abc", UInt8[100, 0, 3, 97, 98, 99])
   it_lexes_type_with_value(Type::Bin, Bytes[1, 2, 3], UInt8[109, 0, 0, 0, 3, 1, 2, 3])
   it_lexes_type_with_value(Type::Float, 1.234, UInt8[99, 49, 46, 50, 51, 52, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 101, 43, 48, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+  it_lexes_type_with_value(Type::SmallTuple, 3, UInt8[104, 3])
 end
