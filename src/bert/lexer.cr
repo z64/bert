@@ -33,9 +33,8 @@ module BERT
     # Reads the next token, and applies its attributes for the unpacker
     # to handle later
     # TODO: Unhandled types:
-    #   - `Float`
-    #   - `Fun` (haven't looked at what this is yet)
-    #   - `NewFun` (ditto)
+    #   - `Fun`
+    #   - `NewFun`
     def prefetch_token
       return token unless token.used
       next_byte
