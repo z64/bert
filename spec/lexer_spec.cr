@@ -52,4 +52,30 @@ describe Lexer do
   it_lexes_type_with_value(Type::LargeTuple, 3, UInt8[105, 0, 3])
   it_lexes_type_with_value(Type::List, 3, UInt8[108, 0, 0, 0, 3])
   it_lexes_type_with_value(Type::Map, 3, UInt8[116, 0, 0, 0, 3])
+
+  it "raises on an unhandled byte" do
+    bytes = Bytes[1]
+    lexer = Lexer.new(bytes)
+    expect_raises(LexerException) do
+      lexer.next_token
+    end
+  end
+
+  # TODO: Tests with `Type::Fun`. Remove once implemented.
+  it "raises on valid but unhandled bytes" do
+    bytes = Bytes[117]
+    lexer = Lexer.new(bytes)
+    expect_raises(LexerException) do
+      lexer.next_token
+    end
+  end
+
+  it "raises on a corrupt float" do
+    bytes = UInt8[99, 0, 46, 50, 51, 52, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 101, 43, 48, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    slice = Slice.new(bytes.to_unsafe, bytes.size)
+    lexer = Lexer.new(slice)
+    expect_raises(LexerException) do
+      lexer.next_token
+    end
+  end
 end

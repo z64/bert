@@ -41,7 +41,11 @@ module BERT
 
       return token if @eof
 
-      type = token.type = Type.from_value(current_byte)
+      begin
+        type = token.type = Type.from_value(current_byte)
+      rescue
+        unexpected_byte!
+      end
 
       case type
       when Type::Magic, Type::Nil
@@ -63,8 +67,7 @@ module BERT
         if value = string_value.rstrip('\0').to_f?
           token.float_value = value
         else
-          # TODO: Exception
-          raise "Invalid Float"
+          raise LexerException.new("Failed to parse Float", @byte_number)
         end
       when Type::Atom
         size = token.size = read UInt16
@@ -120,9 +123,8 @@ module BERT
     end
 
     # Raises an expcetion when an unknown token type is read
-    # TODO: Custom exception
     def unexpected_byte!
-      raise "Unexpected byte! #{token.inspect}"
+      raise LexerException.new("Unexpected byte", @byte_number)
     end
   end
 end
