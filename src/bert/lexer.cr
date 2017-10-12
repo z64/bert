@@ -48,7 +48,7 @@ module BERT
       end
 
       case type
-      when Type::Magic, Type::Nil
+      when Type::Magic, Type::Nil, Type::EOF
         # OK
       when Type::SmallInt
         token.uint_value = read UInt8
