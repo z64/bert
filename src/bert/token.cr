@@ -7,6 +7,7 @@ module BERT
     property int_value : Int8 | Int16 | Int32 | Int64
     property uint_value : UInt8 | UInt16 | UInt32 | UInt64
     property float_value : Float32 | Float64
+    getter nil_value : Nil = nil
     property byte_number
     # TODO: Duplicated setter?
     property size : Int64
